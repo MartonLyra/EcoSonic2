@@ -25,20 +25,20 @@ class UploadWorker(
 
                 for (file in pendingFiles) {
                     try {
-                        LogHelper.log("Iniciando upload de: ${file.fileName}")
+                        LogHelper.log(applicationContext, "Iniciando upload de: ${file.fileName}")
                         dao.update(file.copy(uploadStatus = "uploading"))
                         service.upload(file.filePath)
                         dao.update(file.copy(uploadStatus = "success"))
-                        LogHelper.log("Upload concluído: ${file.fileName}")
+                        LogHelper.log(applicationContext, "Upload concluído: ${file.fileName}")
                     } catch (e: Exception) {
-                        LogHelper.log("Falha no upload: ${file.fileName}, Erro: ${e.message}")
+                        LogHelper.log(applicationContext, "Falha no upload: ${file.fileName}, Erro: ${e.message}")
                         dao.update(file.copy(uploadStatus = "failed"))
                         return@withContext Result.failure()
                     }
                 }
                 Result.success()
             } catch (e: Exception) {
-                LogHelper.log("Erro no worker: ${e.message}")
+                LogHelper.log(applicationContext, "Erro no worker: ${e.message}")
                 Result.failure()
             }
         }

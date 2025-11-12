@@ -14,18 +14,18 @@ interface CloudStorageService {
 
 class GoogleDriveService(private val context: Context) : CloudStorageService {
     override suspend fun upload(filePath: String) {
-        LogHelper.log("Fazendo upload para Google Drive: $filePath")
+        LogHelper.log(context,"Fazendo upload para Google Drive: $filePath")
     }
 }
 
-class DropboxService : CloudStorageService {
+class DropboxService(private val context: Context) : CloudStorageService {
     override suspend fun upload(filePath: String) {
-        LogHelper.log("Fazendo upload para Dropbox: $filePath")
+        LogHelper.log(context, "Fazendo upload para Dropbox: $filePath")
     }
 }
 
-class OneDriveService : CloudStorageService {
+class OneDriveService(private val context: Context) : CloudStorageService {
     override suspend fun upload(filePath: String) {
-        LogHelper.log("Fazendo upload para OneDrive: $filePath")
+        LogHelper.log(context,"Fazendo upload para OneDrive: $filePath")
     }
 }

@@ -42,10 +42,10 @@ class CloudSettingsActivity : AppCompatActivity() {
 
     private fun authenticate() {
         val selected = spCloudService.selectedItem.toString()
-        LogHelper.log("Tentando autenticar com: $selected")
+        LogHelper.log(this, "Tentando autenticar com: $selected")
     }
 
     private fun testUpload() {
-        LogHelper.log("Testando upload...")
+        LogHelper.log(this, "Testando upload...")
     }
 }
