@@ -51,18 +51,23 @@
         android:layout_marginTop="16dp"
         android:text="Pasta de gravação:" />
 
-    <EditText
-        android:id="@+id/etStoragePath"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="/storage/emulated/0/GravacoesAudio" />
-
+    <!-- Substituído EditText por Button -->
     <Button
-        android:id="@+id/btnRequestPermissions"
+        android:id="@+id/btnSelectStoragePath"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Solicitar Permissões" />
+        android:text="Selecionar Pasta"
+        android:layout_marginTop="8dp" />
+    
+    <TextView
+        android:id="@+id/tvSelectedPath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nenhuma pasta selecionada"
+        android:layout_marginTop="8dp"
+        android:textSize="12sp"
+        android:ellipsize="end"
+        android:maxLines="2" />
 
     <Button
         android:id="@+id/btnRequestRoot"
