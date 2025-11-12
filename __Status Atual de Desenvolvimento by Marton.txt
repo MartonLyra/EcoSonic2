@@ -1,0 +1,25 @@
+11/11/2025:
+    O arquivo app/build.gradle.kts
+        está tentando baixar uma versão do serviço do Google Drive mas não está conseguindo baixar:
+
+    // Google Drive API (versão mais estável)
+    implementation("com.google.apis:google-api-services-drive:v3-rev20240320")
+    
+    O LOG diz que não encontra os seguintes arquivos:
+       - https://dl.google.com/dl/android/maven2/com/google/apis/google-api-services-drive/v3-rev20230626/google-api-services-drive-v3-rev20230626.pom
+       - https://repo.maven.apache.org/maven2/com/google/apis/google-api-services-drive/v3-rev20230626/google-api-services-drive-v3-rev20230626.pom
+    
+    E, realmente, ao acessar o URL, não existe arquivos (descartando problema no meu firewall);
+    
+    Quando entro no repositório Maven, parece que a data do mais recente é dia 19/março/2020:
+        https://mvnrepository.com/search?q=google-api-services-drive
+        https://mvnrepository.com/artifact/com.google.apis/google-api-services-drive
+        
+        Nessa página:
+            https://mvnrepository.com/artifact/com.google.apis
+            ao pesquisar por '3. Drive API V3 Rev197 1.25.0', ele mostra: Last Release on Oct 23, 2025
+            Mas, ao clicar no link, ele só tem até 2020.
+            Acabei de descobrir, tem que ordenar pela data. Por padrão, a ordenação é por 'Versão'
+            Só falta agora localizar o aquivo e checar se existe!
+    
+    Solução: ordenei por 'usages' para saber aqueles que são mais usados (não sei onde) e procurei um comd ata de 2024, que é o período e versão que procuro.
