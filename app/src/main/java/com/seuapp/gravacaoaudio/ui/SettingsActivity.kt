@@ -1,6 +1,6 @@
 package com.seuapp.gravacaoaudio.ui
 
-import android.app.Activity
+import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -11,13 +11,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.seuapp.gravacaoaudio.R
 import com.seuapp.gravacaoaudio.utils.RootUtils
-import android.Manifest
-import androidx.core.app.ActivityCompat
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var spFilesPerHour: Spinner
@@ -25,25 +23,36 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var spAudioQuality: Spinner
     private lateinit var btnSelectStoragePath: Button
     private lateinit var tvSelectedPath: TextView
-    private lateinit var btnRequestPermissions: Button
     private lateinit var btnRequestRoot: Button
     private lateinit var btnCloudSettings: Button
     private lateinit var btnRootStatus: Button
 
     private lateinit var sharedPreferences: SharedPreferences
-    private val REQUEST_CODE_OPEN_DOCUMENT_TREE = 1001 // Código arbitrário
+    private val REQUEST_CODE_OPEN_DOCUMENT_TREE = 1001
 
-    // ActivityResultLauncher para o seletor de diretórios
     private val openDocumentTreeLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
         if (uri != null) {
-            // Salvar o URI no SharedPreferences
-            sharedPreferences.edit {
-                putString("storage_directory_uri", uri.toString())
+            // Solicitar permissão persistente
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            try {
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
+                // Salvar o URI no SharedPreferences
+                sharedPreferences.edit {
+                    putString("storage_directory_uri", uri.toString())
+                }
+                // Atualizar a TextView com o caminho
+                updateSelectedPathText(uri.toString())
+                Toast.makeText(this, "Pasta selecionada e permissão persistente concedida com sucesso!", Toast.LENGTH_LONG).show()
+            } catch (e: SecurityException) {
+                Toast.makeText(this, "Falha ao obter permissão persistente: ${e.message}", Toast.LENGTH_LONG).show()
+                // Mesmo sem permissão persistente, você pode salvar o URI, mas ele não funcionará após o app fechar
+                // Talvez mostrar um aviso ou impedir o salvamento
+                sharedPreferences.edit {
+                    putString("storage_directory_uri", uri.toString())
+                }
+                updateSelectedPathText(uri.toString())
+                Toast.makeText(this, "Pasta selecionada, mas permissão pode não persistir após fechar o app.", Toast.LENGTH_LONG).show()
             }
-            // Atualizar a TextView com o caminho - CHAMADA DA FUNÇÃO EXTRAÍDA
-            updateSelectedPathText(uri.toString())
-
-            Toast.makeText(this, "Pasta selecionada com sucesso!", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Nenhuma pasta selecionada.", Toast.LENGTH_SHORT).show()
         }
@@ -57,23 +66,21 @@ class SettingsActivity : AppCompatActivity() {
 
         initViews()
         setupSpinners()
-        loadSavedSettings() // Carregar configurações salvas
+        loadSavedSettings()
     }
 
     private fun initViews() {
         spFilesPerHour = findViewById(R.id.spFilesPerHour)
         spAudioFormat = findViewById(R.id.spAudioFormat)
         spAudioQuality = findViewById(R.id.spAudioQuality)
-
         btnSelectStoragePath = findViewById(R.id.btnSelectStoragePath)
         tvSelectedPath = findViewById(R.id.tvSelectedPath)
-        // btnRequestPermissions = findViewById(R.id.btnRequestPermissions)
         btnRequestRoot = findViewById(R.id.btnRequestRoot)
         btnCloudSettings = findViewById(R.id.btnCloudSettings)
         btnRootStatus = findViewById(R.id.btnRootStatus)
 
         btnSelectStoragePath.setOnClickListener {
-            openDocumentTreeLauncher.launch(null) // null significa raiz do sistema de arquivos
+            openDocumentTreeLauncher.launch(null)
         }
 
         // Adicionando listeners para salvar as seleções
@@ -104,12 +111,6 @@ class SettingsActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
         }
 
-        /*
-        btnRequestPermissions.setOnClickListener {
-            requestPermissions()
-        }
-         */
-
         btnRequestRoot.setOnClickListener {
             requestRootPermission()
         }
@@ -124,7 +125,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        val filesPerHour = arrayOf("1", "2", "3", "4", "6", "12")
+        val filesPerHour = arrayOf("1", "2", "3", "4", "6", "12", "15", "20", "30")
         val formats = arrayOf("MP3", "WAV", "OGG")
         val qualities = arrayOf("Alta", "Média", "Baixa")
 
@@ -134,27 +135,21 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSavedSettings() {
-        // Carregar valores salvos
         val savedFilesPerHour = sharedPreferences.getString("files_per_hour", "2") ?: "2"
         val savedFormat = sharedPreferences.getString("audio_format", "MP3") ?: "MP3"
         val savedQuality = sharedPreferences.getString("audio_quality", "Média") ?: "Média"
         val savedStorageUri = sharedPreferences.getString("storage_directory_uri", null)
 
-        // Aplicar valores aos Spinners (índice baseado no array)
         spFilesPerHour.setSelection(getIndex(spFilesPerHour, savedFilesPerHour))
         spAudioFormat.setSelection(getIndex(spAudioFormat, savedFormat))
         spAudioQuality.setSelection(getIndex(spAudioQuality, savedQuality))
 
-        // Atualizar TextView com o caminho salvo
         updateSelectedPathText(savedStorageUri)
     }
 
-    // Nova função para atualizar o TextView
     private fun updateSelectedPathText(uriString: String?) {
         if (!uriString.isNullOrBlank()) {
             val uri = Uri.parse(uriString)
-            // O SAF não fornece um caminho "amigável" facilmente. Mostramos o path bruto ou um identificador.
-            // O ideal é usar DocumentFile para obter o nome do diretório real, mas para simplificar:
             tvSelectedPath.text = "Pasta selecionada: ${uri.path}"
         } else {
             tvSelectedPath.text = "Nenhuma pasta selecionada"
@@ -169,22 +164,6 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
         return 0
-    }
-
-    private fun requestPermissions() {
-        val permissions = arrayOf(
-            Manifest.permission.RECORD_AUDIO,
-            // WRITE_EXTERNAL_STORAGE não é mais necessário com SAF
-        )
-        val neededPermissions = permissions.filter { permission ->
-            ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (neededPermissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, neededPermissions.toTypedArray(), 100)
-        } else {
-            Toast.makeText(this, "Permissões já concedidas.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun requestRootPermission() {
