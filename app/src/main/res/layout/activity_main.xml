@@ -50,4 +50,15 @@
         android:layout_marginTop="16dp"
         android:text="@string/settings" />
 
+    <!-- Novo TextView para mostrar a data/hora do build -->
+    <TextView
+        android:id="@+id/tvBuildTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Build: --:--:--"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        android:gravity="center" />
+
 </LinearLayout>

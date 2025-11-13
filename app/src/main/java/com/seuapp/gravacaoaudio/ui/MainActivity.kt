@@ -11,6 +11,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.seuapp.gravacaoaudio.R
 import com.seuapp.gravacaoaudio.domain.AudioRecorderService
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnViewLogs: Button
     private lateinit var btnSettings: Button
     private lateinit var tvStatus: TextView
+    private lateinit var tvBuildTime: TextView // Novo TextView
 
     private var isRecording = false
 
@@ -29,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         initViews()
         checkPermissions()
         updateUI()
+        displayBuildTime() // Chama a nova função
     }
 
     private fun initViews() {
@@ -37,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         btnViewLogs = findViewById(R.id.btnViewLogs)
         btnSettings = findViewById(R.id.btnSettings)
         tvStatus = findViewById(R.id.tvStatus)
+        tvBuildTime = findViewById(R.id.tvBuildTime) // Inicializa o novo TextView
 
         btnToggleRecording.setOnClickListener {
             toggleRecording()
@@ -52,6 +57,18 @@ class MainActivity : AppCompatActivity() {
 
         btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
+
+    private fun displayBuildTime() {
+        try {
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            val buildTime = packageInfo.lastUpdateTime // Obtém o timestamp da última atualização (build)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+            val formattedDate = dateFormat.format(Date(buildTime))
+            tvBuildTime.text = "Build: $formattedDate"
+        } catch (e: Exception) {
+            tvBuildTime.text = "Build: Erro ao obter"
         }
     }
 
@@ -85,8 +102,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         val permissions = arrayOf(
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            // WRITE_EXTERNAL_STORAGE não é mais necessária com SAF
         )
 
         val neededPermissions = permissions.filter { permission ->
