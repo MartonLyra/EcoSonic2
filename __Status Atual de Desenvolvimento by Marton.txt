@@ -1,3 +1,24 @@
+Status de Desencolvimento by MartonJr - Mais recente primeiro:
+
+
+13/11/2025:
+    - Agora vamos exibir o 'Build Date/Time' na tela principal para termos certeza de que estamos rodando a última versão;
+    - Melhorando LOG para o Logcat: exigindo contexto de LOG para acessar SharedPreferences e DocumentFile;
+    - Permissões de escrita corrigidas. Antes eram permissões de 'Sessão' e agora 'Permanente';
+    - Mais opções de Arquivos por hora: "1", "2", "3", "4", "6", "12", "15", "20", "30";
+    - Gravação de audio funcionando! Considera o valor inicial e o valor final. Se o usuário solicitar para parar de gravar antes do tempo final esperado, renomeia o arquivo para consistir com o horário real de início e término;
+    - Bugs conhecidos:
+        - mesmo que o usuário clique em 'parar de gravar', na tela mostra que parou de gravar, todas as funções para parar a gravação são chamadas mas ele continua gravando em background.
+            - Quando paramos a gravação, o ícone de uso do microfone (android) desaparece mas arquivos continuam sendo criados.
+        - Meu LOG próprio está criando novos arquivos ao invés de fazer um append;
+
+
+12/11/2025:
+    - AudioRecorderService está gravando;
+    - Falta considerar o end time, calcular o tempo de gravação de acordo com as configurações;
+    - Falta retornar a gravação (caso configurado para gravar) quando o App abrir;
+    
+
 11/11/2025:
     O arquivo app/build.gradle.kts
         está tentando baixar uma versão do serviço do Google Drive mas não está conseguindo baixar:
@@ -9,7 +30,7 @@
        - https://dl.google.com/dl/android/maven2/com/google/apis/google-api-services-drive/v3-rev20230626/google-api-services-drive-v3-rev20230626.pom
        - https://repo.maven.apache.org/maven2/com/google/apis/google-api-services-drive/v3-rev20230626/google-api-services-drive-v3-rev20230626.pom
     
-    E, realmente, ao acessar o URL, não existe arquivos (descartando problema no meu firewall);
+    E, realmente, ao acessar o URL, não existe os arquivos (descartando problema no meu firewall);
     
     Quando entro no repositório Maven, parece que a data do mais recente é dia 19/março/2020:
         https://mvnrepository.com/search?q=google-api-services-drive
@@ -22,4 +43,6 @@
             Acabei de descobrir, tem que ordenar pela data. Por padrão, a ordenação é por 'Versão'
             Só falta agora localizar o aquivo e checar se existe!
     
-    Solução: ordenei por 'usages' para saber aqueles que são mais usados (não sei onde) e procurei um comd ata de 2024, que é o período e versão que procuro.
+    Solução: ordenei por 'usages' para saber aqueles que são mais usados (não sei onde) e procurei um com data de 2024, que é o período e versão que procuro.
+    
+    Corrigido!
